@@ -14,15 +14,30 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-  const { rows } = await pool.query("SELECT * FROM todos;");
-  console.log(rows)
+  const { rows } = await pool.query("SELECT * FROM todos ORDER BY id;");
   res.send(JSON.stringify(rows));
 });
 
 app.post("/", async (req, res) => {
-  await pool.query(`INSERT INTO todos (text) VALUES "${req.body.text}";`);
-  const { rows } = await pool.query("SELECT * FROM todos;");
+  await pool.query(`INSERT INTO todos (text) VALUES ('${req.body.text}');`);
+  const { rows } = await pool.query("SELECT * FROM todos ORDER BY id;");
   res.send(JSON.stringify(rows));
+});
+
+
+app.put('/', async function (req, res) {
+  await pool.query(`UPDATE todos SET ischecked = NOT ischecked WHERE id=${req.body.id};`)
+  const { rows } = await pool.query("SELECT * FROM todos ORDER BY id;");
+  res.send(JSON.stringify(rows));
+
+});
+
+//kustutamine
+app.delete('/', async function (req, res) {
+  await pool.query(`DELETE FROM todos WHERE id=${req.body.id};`)
+  const { rows } = await pool.query("SELECT * FROM todos ORDER BY id;");
+  res.send(JSON.stringify(rows));
+
 });
 
 app.listen(port, () => {
